@@ -13,11 +13,6 @@ import CoreLocation
 //     --header 'Authorization: Bearer API_KEY' \
 //     --header 'accept: application/json'
 
-//Client ID
-//7NZsL01YfTh_zNY-HObD7Q
-//
-//API Key
-//MnYEzConF2Iv3nRbE12_Ihfn-PVMeVSF3o7zTHmIedNQtdGBvSy9LFcUijWl2XqxnY8BhvAjUy3jaCvmfCW8_HAQGzLsJLuKnlN1oSdnLNJCrXOrtmCjWrp9GDQ-Z3Yx
 
 enum YelpSort: String {
     case bestMatch = "best_match"
@@ -29,7 +24,7 @@ enum YelpSort: String {
 
 class YelpController {
     
-    static let apiKey: String = "MnYEzConF2Iv3nRbE12_Ihfn-PVMeVSF3o7zTHmIedNQtdGBvSy9LFcUijWl2XqxnY8BhvAjUy3jaCvmfCW8_HAQGzLsJLuKnlN1oSdnLNJCrXOrtmCjWrp9GDQ-Z3Yx"
+    static let apiKey: String = ""
     static let yelpSearchURLPath: String = "https://api.yelp.com/v3/businesses/search"
     static let badURLError = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Bad URL"]) as Error
     
