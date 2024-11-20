@@ -22,16 +22,19 @@ enum YelpSort: String {
 }
 
 
-class YelpController {
+class YelpController: ObservableObject {
     
     static let apiKey: String = ""
     static let yelpSearchURLPath: String = "https://api.yelp.com/v3/businesses/search"
     static let badURLError = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Bad URL"]) as Error
     
+    @Published var businesses: [Business] = []
+    
     let urlSession = URLSession.shared
     
-    func search(location: CLLocation, term: String, radius: Int, sort: YelpSort) async -> Result<[Business],Error> {
-        guard var url = URL(string: YelpController.yelpSearchURLPath) else {return .failure(YelpController.badURLError)}
+    @MainActor
+    func search(location: CLLocation, term: String, radius: Int, sort: YelpSort) async  {
+        guard var url = URL(string: YelpController.yelpSearchURLPath) else {return}
         
         url.append(queryItems: [
             URLQueryItem(name: "latitude", value: String(location.coordinate.latitude))
@@ -47,13 +50,12 @@ class YelpController {
             let decoder = JSONDecoder()
             do {
                 let businessData = try decoder.decode(BusinessData.self, from: data)
-                return .success(businessData.businesses)
+                businesses = businessData.businesses
             } catch {
-                return .failure(error)
             }
             
         case .failure(let error):
-            return .failure(error)
+            print(error)
         }
     }
     
@@ -76,7 +78,6 @@ class YelpController {
         let decoder = JSONDecoder()
         let businessData = try? decoder.decode(BusinessData.self, from: data)
         var businesses = businessData?.businesses
-        print(businesses)
         
         return businesses
     }

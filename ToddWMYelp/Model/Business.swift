@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct Business: Codable {
+struct Business: Identifiable, Codable {
+    var id: String
     var name: String?
     var image_url: String?
     var distance: Double?
