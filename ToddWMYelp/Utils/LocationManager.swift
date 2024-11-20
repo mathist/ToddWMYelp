@@ -20,7 +20,7 @@ class LocationManager: NSObject {
         
         super.init()
         
-        locationManager.requestWhenInUseAuthorization()
+        locationManager.requestWhenInUseAuthorization()        
     }
     
     deinit {

@@ -26,14 +26,14 @@ class YelpController: ObservableObject {
     
     static let apiKey: String = ""
     static let yelpSearchURLPath: String = "https://api.yelp.com/v3/businesses/search"
-    static let badURLError = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Bad URL"]) as Error
-    
+    static let searchResultsCount: Int = 25
     @Published var businesses: [Business] = []
     
     let urlSession = URLSession.shared
+    var currentOffset: Int = 0
     
     @MainActor
-    func search(location: CLLocation, term: String, radius: Int, sort: YelpSort) async  {
+    func search(location: CLLocation, term: String, radius: Int, sort: YelpSort, nextPage: Bool) async  {
         guard var url = URL(string: YelpController.yelpSearchURLPath) else {return}
         
         url.append(queryItems: [
@@ -41,7 +41,15 @@ class YelpController: ObservableObject {
             , URLQueryItem(name: "longitude", value: String(location.coordinate.longitude))
             , URLQueryItem(name: "term", value: term)
             , URLQueryItem(name: "sort_by", value: sort.rawValue)
+            , URLQueryItem(name: "radius", value: String(radius))
+            , URLQueryItem(name: "limit", value: String(YelpController.searchResultsCount))
         ])
+
+        if nextPage {
+            url.append(queryItems: [URLQueryItem(name: "offset", value: String(currentOffset))])
+        } else {
+            currentOffset = 0
+        }
         
         let result = await performSearch(url: url)
         
@@ -50,7 +58,14 @@ class YelpController: ObservableObject {
             let decoder = JSONDecoder()
             do {
                 let businessData = try decoder.decode(BusinessData.self, from: data)
-                businesses = businessData.businesses
+                
+                if nextPage {
+                    businesses.append(contentsOf: businessData.businesses)
+                } else {
+                    businesses = businessData.businesses
+                }
+                
+                currentOffset = businesses.count
             } catch {
             }
             
@@ -72,13 +87,16 @@ class YelpController: ObservableObject {
         }
     }
     
-    func testBusinesses() -> [Business]? {
+    func testBusinesses(isNextPage: Bool) {
         let data: Data = BusinessData.testData()
         
         let decoder = JSONDecoder()
-        let businessData = try? decoder.decode(BusinessData.self, from: data)
-        var businesses = businessData?.businesses
-        
-        return businesses
+        if let businessData = try? decoder.decode(BusinessData.self, from: data) {
+            if isNextPage {
+                self.businesses.append(contentsOf: businessData.businesses)
+            } else {
+                self.businesses = businessData.businesses
+            }
+        }
     }
 }

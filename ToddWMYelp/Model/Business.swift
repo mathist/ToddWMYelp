@@ -9,16 +9,28 @@ import Foundation
 
 struct Business: Identifiable, Codable {
     var id: String
-    var name: String?
+    var name: String
     var image_url: String?
     var distance: Double?
     var url: String?
     var coordinates: Coordinates?
+    var location: Location?
+    
 }
 
 struct Coordinates: Codable {
     var latitude: Double?
     var longitude: Double?
+}
+
+struct Location: Codable {
+    var display_address: [String]?
+    var city: String?
+    var address1: String?
+    var address2: String?
+    var zip_code: String?
+    var state: String?
+    var country: String?
 }
 
 struct BusinessData: Codable {

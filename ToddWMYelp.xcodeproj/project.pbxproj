@@ -254,6 +254,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"ToddWMYelp/Preview Content\"";
 				DEVELOPMENT_TEAM = Y7PLD2N9KF;
 				ENABLE_PREVIEWS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Help us find locations near you.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -269,6 +270,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mathisonsoftware.ToddWMYelp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -284,6 +286,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"ToddWMYelp/Preview Content\"";
 				DEVELOPMENT_TEAM = Y7PLD2N9KF;
 				ENABLE_PREVIEWS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Help us find locations near you.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -299,6 +302,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mathisonsoftware.ToddWMYelp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
