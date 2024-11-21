@@ -14,7 +14,6 @@ import Combine
 //     --header 'Authorization: Bearer API_KEY' \
 //     --header 'accept: application/json'
 
-
 enum YelpSort: String {
     case bestMatch = "best_match"
     case rating = "rating"
@@ -22,10 +21,8 @@ enum YelpSort: String {
     case distance = "distance"
 }
 
-
 class SearchController: ObservableObject {
     
-    static let apiKey: String = ""
     static let yelpSearchURLPath: String = "https://api.yelp.com/v3/businesses/search"
     static let searchResultsCount: Int = 15
     @Published var businesses: [Business] = []
@@ -45,6 +42,8 @@ class SearchController: ObservableObject {
                 self?.autoSearch(query: query)
             }
             .store(in: &cancellables)
+        
+        testBusinesses(isNextPage: false)
     }
     
     @MainActor
@@ -90,7 +89,7 @@ class SearchController: ObservableObject {
     func performSearch(url: URL) async -> Result<Data,Error> {
         var request: URLRequest = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.addValue("Bearer \(SearchController.apiKey)", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(kApiKey)", forHTTPHeaderField: "Authorization")
         
         do {
             let (data, _) = try await urlSession.data(for: request)
