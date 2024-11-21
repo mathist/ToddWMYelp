@@ -5,5 +5,7 @@
 //  Created by Todd Mathison on 11/21/24.
 //
 
-let kApiKey: String = "MnYEzConF2Iv3nRbE12_Ihfn-PVMeVSF3o7zTHmIedNQtdGBvSy9LFcUijWl2XqxnY8BhvAjUy3jaCvmfCW8_HAQGzLsJLuKnlN1oSdnLNJCrXOrtmCjWrp9GDQ-Z3Yx"
+let kApiKey: String = ""
 let kFavorites: String = "favorites"
+let kSearchURLPath: String = "https://api.yelp.com/v3/businesses/search"
+let kResultsCount: Int = 15

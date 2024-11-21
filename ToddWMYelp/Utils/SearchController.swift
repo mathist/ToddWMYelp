@@ -23,8 +23,6 @@ enum YelpSort: String {
 
 class SearchController: ObservableObject {
     
-    static let yelpSearchURLPath: String = "https://api.yelp.com/v3/businesses/search"
-    static let searchResultsCount: Int = 15
     @Published var businesses: [Business] = []
     
     let urlSession = URLSession.shared
@@ -32,9 +30,7 @@ class SearchController: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var locationManager: LocationManager = LocationManager()
     
-    init() {
-        locationManager.start()
-        
+    init() {        
         $searchQuery
             .debounce(for: .milliseconds(1500), scheduler: RunLoop.main)
             .removeDuplicates()
@@ -46,7 +42,7 @@ class SearchController: ObservableObject {
     
     @MainActor
     func search(location: CLLocation, term: String, radius: Int, sort: YelpSort, nextPage: Bool) async  {
-        guard var url = URL(string: SearchController.yelpSearchURLPath)
+        guard var url = URL(string: kSearchURLPath)
                 , !term.isEmpty
         else {return}
         
@@ -56,7 +52,7 @@ class SearchController: ObservableObject {
             , URLQueryItem(name: "term", value: term)
             , URLQueryItem(name: "sort_by", value: sort.rawValue)
             , URLQueryItem(name: "radius", value: String(radius))
-            , URLQueryItem(name: "limit", value: String(SearchController.searchResultsCount))
+            , URLQueryItem(name: "limit", value: String(kResultsCount))
         ])
 
         if nextPage {

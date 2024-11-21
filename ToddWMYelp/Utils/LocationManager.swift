@@ -10,23 +10,15 @@ import CoreLocation
 
 class LocationManager: NSObject {
     
-    var locationManager:  CLLocationManager
+    var locationManager:  CLLocationManager = CLLocationManager()
     var mostRecentLocation: CLLocation?
     
     override public init() {
-        print("LocationManager init")
-
-        locationManager = CLLocationManager()
-        
         super.init()
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+    }
         
-        locationManager.requestWhenInUseAuthorization()        
-    }
-    
-    deinit {
-        print("LocationManager deinit")
-    }
-    
     func start() {
         guard locationManager.authorizationStatus == .authorizedAlways || locationManager.authorizationStatus == .authorizedWhenInUse
         else {
@@ -34,7 +26,6 @@ class LocationManager: NSObject {
             return
         }
         
-        locationManager.delegate = self
         locationManager.startUpdatingLocation()
     }
     
@@ -48,15 +39,18 @@ class LocationManager: NSObject {
 extension LocationManager: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//        locations.forEach({
-//            print("location: \($0.coordinate.latitude), \($0.coordinate.longitude)")
-//        })
-        
         mostRecentLocation = locations.last
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print(error)
+    }
+    
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        if locationManager.authorizationStatus == .authorizedAlways
+            || locationManager.authorizationStatus == .authorizedWhenInUse {
+            start()
+        }
     }
 }
 
