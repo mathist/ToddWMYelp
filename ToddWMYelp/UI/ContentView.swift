@@ -6,24 +6,14 @@
 //
 
 import SwiftUI
+import Combine
 
 struct ContentView: View {
     
-    var locationManager: LocationManager
-    
-    @ObservedObject var yelpController: YelpController
-    @State private var searchText: String
+    @ObservedObject var searchController: SearchController = SearchController()
     @State private var tappedIndex: Int?
     @State private var showDetailScreen: Bool = false
     @Environment(\.openURL) var openURL
-    
-    init() {
-        self.locationManager = LocationManager()
-        self.yelpController = YelpController()
-        self.searchText = ""
-        
-        self.locationManager.start()
-    }
     
     var body: some View {
         NavigationStack {
@@ -32,8 +22,8 @@ struct ContentView: View {
                 ScrollView() {
                     LazyVStack(alignment: .leading, spacing: 4) {
                         
-                        ForEach(yelpController.businesses.indices, id: \.self) { index in
-                            let business = yelpController.businesses[index]
+                        ForEach(searchController.businesses.indices, id: \.self) { index in
+                            let business = searchController.businesses[index]
                             
                             HStack(alignment: .top, spacing: 8) {
                                 
@@ -58,16 +48,14 @@ struct ContentView: View {
                                 }
                             }
                             .onTapGesture {
-                                print("tapped \(index)")
                                 tappedIndex = index
                                 showDetailScreen = true
                             }
                             
                             Divider()
                                 .onAppear() {
-                                    if index == yelpController.businesses.count-1 {
-                                        print("last item")
-                                        nextPage()
+                                    if index == searchController.businesses.count-1 {
+                                        searchController.nextPage()
                                     }
                                 }
                         }
@@ -76,15 +64,12 @@ struct ContentView: View {
             }
             .padding(16)
         }
-        .searchable(text: $searchText)
-        .onAppear(perform: runSearch)
-        .onSubmit(of: .search, runSearch)
-        .onChange(of: searchText, { runSearch()})
+        .searchable(text: $searchController.searchQuery)
         .alert("Open Business?", isPresented: $showDetailScreen) {
             Button("Cancel", role: .cancel) {}
             Button("Safari") {
                 if let tappedIndex = tappedIndex
-                    , let path = yelpController.businesses[tappedIndex].url
+                    , let path = searchController.businesses[tappedIndex].url
                     , let url = URL(string: path) {
                     openURL(url)
                 }
@@ -95,33 +80,4 @@ struct ContentView: View {
         }
     }
 
-    
-    func runSearch() {
-  
-//        yelpController.testBusinesses(isNextPage: false)
-        
-        Task {
-            if let location = locationManager.mostRecentLocation {
-                await yelpController.search(location: location, term: searchText, radius: 1609*5, sort: .distance, nextPage: false)
-            }
-        }
-    }
-    
-    func nextPage() {
-//        yelpController.testBusinesses(isNextPage: true)
-        
-
-        Task {
-            if let location = locationManager.mostRecentLocation {
-                await yelpController.search(location: location, term: searchText, radius: 1609*5, sort: .distance, nextPage: true)
-            }
-        }
-    }
 }
-
-//#Preview {
-//    ContentView()
-//}
-
-
-

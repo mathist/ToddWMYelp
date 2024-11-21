@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import Combine
 
 //curl --request GET \
 //     --url https://api.yelp.com/v3/events/awesome-event \
@@ -22,19 +23,35 @@ enum YelpSort: String {
 }
 
 
-class YelpController: ObservableObject {
+class SearchController: ObservableObject {
     
     static let apiKey: String = ""
     static let yelpSearchURLPath: String = "https://api.yelp.com/v3/businesses/search"
-    static let searchResultsCount: Int = 25
+    static let searchResultsCount: Int = 15
     @Published var businesses: [Business] = []
     
     let urlSession = URLSession.shared
-    var currentOffset: Int = 0
+    @Published var searchQuery: String = ""
+    private var cancellables = Set<AnyCancellable>()
+    private var locationManager: LocationManager = LocationManager()
+    
+    init() {
+        locationManager.start()
+        
+        $searchQuery
+            .debounce(for: .milliseconds(1500), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] query in
+                self?.autoSearch(query: query)
+            }
+            .store(in: &cancellables)
+    }
     
     @MainActor
     func search(location: CLLocation, term: String, radius: Int, sort: YelpSort, nextPage: Bool) async  {
-        guard var url = URL(string: YelpController.yelpSearchURLPath) else {return}
+        guard var url = URL(string: SearchController.yelpSearchURLPath)
+                , !term.isEmpty
+        else {return}
         
         url.append(queryItems: [
             URLQueryItem(name: "latitude", value: String(location.coordinate.latitude))
@@ -42,13 +59,11 @@ class YelpController: ObservableObject {
             , URLQueryItem(name: "term", value: term)
             , URLQueryItem(name: "sort_by", value: sort.rawValue)
             , URLQueryItem(name: "radius", value: String(radius))
-            , URLQueryItem(name: "limit", value: String(YelpController.searchResultsCount))
+            , URLQueryItem(name: "limit", value: String(SearchController.searchResultsCount))
         ])
 
         if nextPage {
-            url.append(queryItems: [URLQueryItem(name: "offset", value: String(currentOffset))])
-        } else {
-            currentOffset = 0
+            url.append(queryItems: [URLQueryItem(name: "offset", value: String(businesses.count))])
         }
         
         let result = await performSearch(url: url)
@@ -64,8 +79,6 @@ class YelpController: ObservableObject {
                 } else {
                     businesses = businessData.businesses
                 }
-                
-                currentOffset = businesses.count
             } catch {
             }
             
@@ -77,13 +90,30 @@ class YelpController: ObservableObject {
     func performSearch(url: URL) async -> Result<Data,Error> {
         var request: URLRequest = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.addValue("Bearer \(YelpController.apiKey)", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(SearchController.apiKey)", forHTTPHeaderField: "Authorization")
         
         do {
             let (data, _) = try await urlSession.data(for: request)
             return .success(data)
         } catch {
             return .failure(error)
+        }
+    }
+    
+    // Simulated search function that returns results based on the query
+    private func autoSearch(query: String) {
+        Task {
+            if let location = locationManager.mostRecentLocation {
+                await search(location: location, term: query, radius: 1609*5, sort: .distance, nextPage: false)
+            }
+        }
+    }
+    
+    func nextPage() {
+        Task {
+            if let location = locationManager.mostRecentLocation {
+                await search(location: location, term: searchQuery, radius: 1609*5, sort: .distance, nextPage: true)
+            }
         }
     }
     
