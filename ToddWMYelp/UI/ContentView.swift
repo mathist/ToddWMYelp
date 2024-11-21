@@ -15,8 +15,10 @@ struct ContentView: View {
     @State private var tappedIndex: Int?
     @State private var showDetailScreen: Bool = false
     @State private var showWebView: Bool = false
+    @State private var favorites: [String] = UserDefaults.standard.object(forKey: kFavorites) as? [String] ?? []
 
     @Environment(\.openURL) var openURL
+    
 
     var body: some View {
         NavigationStack {
@@ -47,11 +49,14 @@ struct ContentView: View {
                                     if let address = business.location?.display_address?.joined(separator: "\n") {
                                         Text(address)
                                     }
-
-//                                    FavoriteButton(isFavorite: business.isFavorite ?? false) {
-//                                        isFavorite(index: index) ? removeFavorite(index: index) : addFavorite(index: index)
-//                                    }
                                     
+                                    Button{
+                                        isFavorite(index: index) ? removeFavorite(index: index) : addFavorite(index: index)
+                                    } label: {
+                                        Image(systemName: isFavorite(index: index) ? "star.fill" : "star")
+                                            .resizable()
+                                            .frame(width: 25, height: 25)
+                                    }
                                 }
                             }
                             .onTapGesture {
@@ -98,70 +103,22 @@ struct ContentView: View {
 
     }
     
-//    func addFavorite(index: Int) {
-//        if var favorites = UserDefaults.standard.object(forKey: kFavorites) as? [String]
-//            , !favorites.contains(searchController.businesses[index].id) {
-//            favorites.append(searchController.businesses[index].id)
-//            UserDefaults.standard.set(favorites, forKey: kFavorites)
-//        } else {
-//            UserDefaults.standard.set([searchController.businesses[index].id], forKey: kFavorites)
-//        }
-//
-//        searchController.businesses[index].isFavorite = true
-//        
-//        UserDefaults.standard.synchronize()
-//        
-//        print(UserDefaults.standard.object(forKey: kFavorites) as! [String])
-//    }
-//    
-//    func removeFavorite(index: Int) {
-//        if var favorites = UserDefaults.standard.object(forKey: kFavorites) as? [String]
-//            , let favoritesIndex = favorites.firstIndex(of: searchController.businesses[index].id) {
-//            favorites.remove(at: favoritesIndex)
-//            UserDefaults.standard.set(favorites, forKey: kFavorites)
-//            UserDefaults.standard.synchronize()
-//        }
-//        
-//        searchController.businesses[index].isFavorite = false
-//
-//        print(UserDefaults.standard.object(forKey: kFavorites) as! [String])
-//    }
-//    
-//    func isFavorite(index: Int) -> Bool {
-//        
-//        var favorite: Bool = false
-//        
-//        if let favorites = UserDefaults.standard.object(forKey: kFavorites) as? [String] {
-//            favorite = favorites.contains(searchController.businesses[index].id)
-//        }
-//        
-////        print("\(searchController.businesses[index].name): \(favorite)")
-//        
-//        return favorite
-//    }
-
+    func addFavorite(index: Int) {
+        favorites.append(searchController.businesses[index].id)
+        UserDefaults.standard.set(favorites, forKey: kFavorites)
+        UserDefaults.standard.synchronize()
+    }
+    
+    func removeFavorite(index: Int) {
+        favorites.removeAll(where: {$0.compare(searchController.businesses[index].id) == .orderedSame})
+        UserDefaults.standard.set(favorites, forKey: kFavorites)
+        UserDefaults.standard.synchronize()
+    }
+    
+    func isFavorite(index: Int) -> Bool {
+        return favorites.contains(searchController.businesses[index].id)
+    }
 }
-
-
-//struct FavoriteButton: View {
-//    
-//    @State var isFavorite: Bool = false
-//    let action: () -> Void
-//        
-//    var body: some View {
-//        
-//        let _ = print("favorite draw")
-//        
-//        Button{
-//            action()
-//            isFavorite.toggle()
-//        } label: {
-//            Image(systemName: isFavorite ? "star.fill" : "star")
-//                .resizable()
-//                .frame(width: 25, height: 25)
-//        }
-//    }
-//}
 
 
 struct DetailScreen: View {
@@ -182,7 +139,6 @@ struct DetailScreen: View {
                         })
                     }
                 }
-
         }
     }
 }

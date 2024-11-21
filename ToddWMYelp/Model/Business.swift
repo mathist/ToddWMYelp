@@ -15,7 +15,6 @@ struct Business: Identifiable, Codable {
     var url: String?
     var coordinates: Coordinates?
     var location: Location?
-    var isFavorite: Bool?
 }
 
 struct Coordinates: Codable {

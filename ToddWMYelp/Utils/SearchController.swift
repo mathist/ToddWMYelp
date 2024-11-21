@@ -41,9 +41,7 @@ class SearchController: ObservableObject {
             .sink { [weak self] query in
                 self?.autoSearch(query: query)
             }
-            .store(in: &cancellables)
-        
-        testBusinesses(isNextPage: false)
+            .store(in: &cancellables)        
     }
     
     @MainActor
@@ -99,8 +97,7 @@ class SearchController: ObservableObject {
         }
     }
     
-    // Simulated search function that returns results based on the query
-    private func autoSearch(query: String) {
+    private func autoSearch(query: String) {        
         Task {
             if let location = locationManager.mostRecentLocation {
                 await search(location: location, term: query, radius: 1609*5, sort: .distance, nextPage: false)
