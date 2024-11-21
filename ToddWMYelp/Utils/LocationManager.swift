@@ -48,9 +48,9 @@ class LocationManager: NSObject {
 extension LocationManager: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        locations.forEach({
-            print("location: \($0.coordinate.latitude), \($0.coordinate.longitude)")
-        })
+//        locations.forEach({
+//            print("location: \($0.coordinate.latitude), \($0.coordinate.longitude)")
+//        })
         
         mostRecentLocation = locations.last
     }
